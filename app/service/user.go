@@ -1,7 +1,6 @@
 package service
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"github.com/gogf/gf/frame/g"
@@ -73,7 +72,7 @@ func(s *userService) checkPhone(phone string) bool {
 func(s *userService) GetProfile(id string) (*model.UserProfile, error) {
 	var user *model.User
 	var profile *model.UserProfile
-	err :=  dao.User.Ctx(nil).Where("id=?", id).Scan(user)
+	err :=  dao.User.Ctx(nil).Where("id=?", id).Scan(&user)
 	if err != nil {
 		return nil, err
 	}
