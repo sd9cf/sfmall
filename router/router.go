@@ -5,7 +5,6 @@ import (
 	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/net/ghttp"
 	"sfmall/app/service"
-	"sfmall/app/api"
 )
 
 func middlewareAuth(r *ghttp.Request) {
@@ -24,6 +23,6 @@ func init() {
 	})
 	s.Group("/user", func(g *ghttp.RouterGroup) {
 		g.Middleware(service.Middleware.CORS, middlewareAuth)
-		g.ALL("/profile", api.User.)
+		g.ALL("/profile", api.User.Profile)
 	})
 }
