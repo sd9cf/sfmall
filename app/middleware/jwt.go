@@ -1,4 +1,4 @@
-package api
+package middleware
 
 import (
 	jwt "github.com/gogf/gf-jwt"
@@ -12,22 +12,38 @@ import (
 	"time"
 )
 
+type JwtConfig struct {
+	ExpireTime    int    // 过期时间
+	RefreshTime   int    // 刷新时间
+	SignKey       string // 签名
+	Realm         string // 域
+	IdentityKey   string // 鉴权中用户唯一标识
+	TokenLookup   string // token在请求中位置
+	TokenHeadName string // token前缀
+}
+
 var (
 	// The underlying JWT middleware.
 	Auth *jwt.GfJWTMiddleware
+	JwtCfg   *JwtConfig
 )
 
 // Initialization function,
 // rewrite this function to customized your own JWT settings.
 func init() {
+	// 初始化配置
+	JwtCfg = new(JwtConfig)
+	if err := g.Cfg().GetStruct("jwt", JwtCfg); err != nil {
+		g.Log().Errorf("load jwt config fail, err: %v", err)
+	}
 	authMiddleware, err := jwt.New(&jwt.GfJWTMiddleware{
-		Realm:           "test zone",
-		Key:             []byte("secret key"),
-		Timeout:         time.Minute * 5,
-		MaxRefresh:      time.Minute * 5,
-		IdentityKey:     "id",
-		TokenLookup:     "header: Authorization, query: token, cookie: jwt",
-		TokenHeadName:   "Bearer",
+		Realm:           JwtCfg.Realm,
+		Key:             []byte(JwtCfg.SignKey),
+		Timeout:         time.Minute * time.Duration(JwtCfg.ExpireTime),
+		MaxRefresh:      time.Minute * time.Duration(JwtCfg.RefreshTime),
+		IdentityKey:     JwtCfg.IdentityKey,
+		TokenLookup:     JwtCfg.TokenLookup,
+		TokenHeadName:   JwtCfg.TokenHeadName,
 		TimeFunc:        time.Now,
 		Authenticator:   Authenticator,
 		LoginResponse:   LoginResponse,
@@ -127,4 +143,9 @@ func Authenticator(r *ghttp.Request) (interface{}, error) {
 	}
 
 	return user, nil
+}
+
+func MiddlewareAuth(r *ghttp.Request) {
+	Auth.MiddlewareFunc()(r)
+	r.Middleware.Next()
 }

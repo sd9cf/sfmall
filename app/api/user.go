@@ -35,7 +35,7 @@ func (a *userApi) Profile(r *ghttp.Request) {
 	var id = r.Get("id")
 	var profile *model.UserProfile
 	var err error
-	if profile, err = service.User.GetProfile(id); err != nil {
+	if profile, err = service.User.GetProfile(gconv.String(id)); err != nil {
 		response.JsonExit(r, 1, err.Error())
 	}
 	response.JsonExit(r, 0, "ok", profile)

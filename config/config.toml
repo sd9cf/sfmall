@@ -2,12 +2,12 @@
 [server]
 	Address     = ":8199"
 	ServerRoot  = "public"
-	ServerAgent = "gf-app"
-	LogPath     = "/tmp/log/gf-app/server"
+	ServerAgent = "sfmall"
+	LogPath     = "/tmp/log/sfmall/server"
 
 # Logger.
 [logger]
-    Path        = "/tmp/log/gf-app"
+    Path        = "/tmp/log/sfmall"
     Level       = "all"
     Stdout      = true
 
@@ -23,7 +23,7 @@
     debug = true
     # Database logger.
     [database.logger]
-        Path   = "/tmp/log/gf-app/sql"
+        Path   = "/tmp/log/sfmall/sql"
         Level  = "all"
         Stdout = true
 
@@ -34,3 +34,11 @@
         link   = "mysql:root:123456@tcp(127.0.0.1:33060)/sfmall"
         tables = "user,address,category,order,product"
 
+jwt:
+  ExpireTime: 60
+  RefreshTime: 480
+  SignKey: sfmall
+  Realm: sfmall zone
+  IdentityKey: id
+  TokenLookup: 'header: Authorization, query: token, cookie: jwt'
+  TokenHeadName: Bearer
