@@ -34,11 +34,11 @@
         link   = "mysql:root:123456@tcp(127.0.0.1:33060)/sfmall"
         tables = "user,address,category,order,product"
 
-jwt:
-  ExpireTime: 60
-  RefreshTime: 480
-  SignKey: sfmall
-  Realm: sfmall zone
-  IdentityKey: id
-  TokenLookup: 'header: Authorization, query: token, cookie: jwt'
-  TokenHeadName: Bearer
+[jwt]
+  ExpireTime = 60
+  RefreshTime = 480
+  SignKey = "sfmall"
+  Realm = "sfmall zone"
+  IdentityKey = "id"
+  TokenLookup = "header: Authorization, query: token, cookie: jwt"
+  TokenHeadName = "Bearer"

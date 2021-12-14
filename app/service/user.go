@@ -4,9 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math"
 	"sfmall/app/dao"
 	"sfmall/app/model"
 
+	"github.com/gogf/gf/database/gdb"
 	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/util/gconv"
 	"github.com/gogf/guuid"
@@ -85,4 +87,30 @@ func (s *userService) GetProfile(id string) (*model.UserProfile, error) {
 		return nil, err
 	}
 	return profile, nil
+}
+
+
+func (s *userService) AddBalance(id string, money int) error {
+	err := dao.User.Ctx(context.TODO()).Transaction(context.TODO(), func(ctx context.Context, tx *gdb.TX) error {
+		var user *model.User
+		err := dao.User.Ctx(ctx).Where(id).Scan(user)
+		if err != nil {
+			return err
+		}
+		if money > 0 {
+			user.Balance += uint64(money)
+		} else {
+			user.Balance -= uint64(-money)
+		}
+		
+		_, err = dao.User.Ctx(ctx).Update(user)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+	return nil
 }
