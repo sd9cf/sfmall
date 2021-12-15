@@ -26,7 +26,7 @@ func(s *productService) GetProduct(id string) (*model.Product, error) {
 }
 
 
-func(s *productService) GetProducts(req *model.ProductApiGetProductsReq) ([]*model.SimpleProduct, *paging.Paging, error) {
+func(s *productService) GetProducts(req *model.ProductApiGetProductsReq) (*model.PagingRes, error) {
 	categoryId := req.CategoryId
 	db := dao.Product.Ctx(context.TODO()).Where("category_id=?", categoryId).Order(
 		req.OrderColumn + " " + req.OrderType)
@@ -34,19 +34,22 @@ func(s *productService) GetProducts(req *model.ProductApiGetProductsReq) ([]*mod
 	p := paging.Create(req.PageNum, req.PageSize, total)
 	db.Limit(p.PageSize, p.StartNum)
 	if err !=nil {
-		return nil, nil, err
+		return nil, err
 	}
 	product, err := db.All()
 	if err !=nil {
-		return nil, nil, err
+		return nil, err
 	}
 	if product == nil {
-		return nil, nil, errors.New("未找到商品")
+		return nil, errors.New("未找到商品")
 	}
 	var productlist []*model.SimpleProduct
 	if err = product.Structs(&productlist); err != nil {
-		return nil, nil, err
+		return nil, err
 	} 
-
-	return productlist, p, nil
+	
+	return &model.PagingRes{
+		Data: productlist,
+		Paging: p,
+	}, nil
 }

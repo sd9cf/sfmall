@@ -1,5 +1,9 @@
 package model
 
+type ProductApiGetProductReq struct {
+	CategoryId string `json:"categoryId"`
+}
+
 type ProductApiGetProductsReq struct {
 	CategoryId string `json:"categoryId"`
 	PagingQueryReq
