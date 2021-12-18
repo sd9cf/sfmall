@@ -4,6 +4,7 @@ import (
 	"context"
 	"sfmall/app/dao"
 	"sfmall/app/model"
+	"github.com/gogf/gf/frame/g"
 )
 
 var Category = categoryService{}

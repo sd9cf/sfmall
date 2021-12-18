@@ -42,7 +42,7 @@ func (s *userService) SignUp(req *model.UserServiceSignUpReq) error {
 	if !s.checkPhone(req.Phone) {
 		return fmt.Errorf("手机号 %s 已经注册", req.Phone)
 	}
-	var user *model.User
+	var user model.User
 	user.Username = req.Username
 	user.Phone = req.Phone
 	user.Password = req.Password
