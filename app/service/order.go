@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"github.com/gogf/gf/frame/g"
 	"sfmall/app/dao"
 	"sfmall/app/model"
 	"sfmall/library/paging"
@@ -19,10 +20,12 @@ func(s *orderService) GetOrders(req *model.OrderApiGetOrdersReq, userId string) 
 	p := paging.Create(req.PageNum, req.PageSize, total)
 	db.Limit(p.PageSize, p.StartNum)
 	if err !=nil {
+		g.Log().Error(err)
 		return nil, err
 	}
 	order, err := db.All()
 	if err != nil {
+		g.Log().Error(err)
 		return nil, err
 	}
 	if order == nil {
@@ -30,6 +33,7 @@ func(s *orderService) GetOrders(req *model.OrderApiGetOrdersReq, userId string) 
 	}
 	var orderlist []*model.Order
 	if err = order.Structs(&orderlist); err != nil {
+		g.Log().Error(err)
 		return nil, err
 	} 
 
@@ -41,8 +45,9 @@ func(s *orderService) GetOrders(req *model.OrderApiGetOrdersReq, userId string) 
 
 func (s *orderService) GetOrder(id string, userId string) (*model.Order, error) {
 	var order *model.Order
-	err := dao.Order.Ctx(context.TODO()).Where(id).Scan(order)
+	err := dao.Order.Ctx(context.TODO()).Where(id).Scan(&order)
 	if err != nil {
+		g.Log().Error(err)
 		return nil, err
 	}
 	if order == nil {

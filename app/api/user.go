@@ -40,3 +40,29 @@ func (a *userApi) Profile(r *ghttp.Request) {
 	}
 	response.JsonExit(r, 0, "ok", profile)
 }
+
+func (a *userApi) AddBalance(r *ghttp.Request) {
+	var apiReq *model.AddBalance
+	if err := r.ParseForm(&apiReq); err != nil {
+		response.JsonExit(r, 1, err.Error())
+	}
+	var id = r.Get("id")
+	err := service.User.AddBalance(gconv.String(id), apiReq.Money)
+	if err != nil {
+		response.JsonExit(r, 1, err.Error())
+	}
+	response.JsonExit(r, 0, "ok")
+}
+
+func (a *userApi) BuyProduct(r *ghttp.Request) {
+	var apiReq *model.BuyProduct
+	var id = r.Get("id")
+	if err := r.ParseForm(&apiReq); err != nil {
+		response.JsonExit(r, 1, err.Error())
+	}
+	err := service.User.BuyProduct(gconv.String(id), apiReq)
+	if err != nil {
+		response.JsonExit(r, 1, err.Error())
+	}
+	response.JsonExit(r, 0, "ok")
+}

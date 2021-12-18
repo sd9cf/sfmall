@@ -16,7 +16,7 @@ func (a *productApi) GetProduct(r *ghttp.Request) {
 	if err := r.ParseForm(&apiReq); err != nil {
 		response.JsonExit(r, 1, err.Error())
 	}
-	product, err := service.Product.GetProduct(apiReq.CategoryId)
+	product, err := service.Product.GetProduct(apiReq.ProductId)
 	if err != nil {
 		response.JsonExit(r, 1, err.Error())
 	}

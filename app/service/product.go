@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"github.com/gogf/gf/frame/g"
 	"sfmall/app/dao"
 	"sfmall/app/model"
 	"sfmall/library/paging"
@@ -15,8 +16,9 @@ type productService struct{}
 
 func(s *productService) GetProduct(id string) (*model.Product, error) {
 	var product *model.Product
-	err := dao.Product.Ctx(context.TODO()).Where(id).Scan(product)
+	err := dao.Product.Ctx(context.TODO()).Where(id).Scan(&product)
 	if err != nil {
+		g.Log().Error(err)
 		return nil, err
 	}
 	if product == nil {
@@ -27,8 +29,10 @@ func(s *productService) GetProduct(id string) (*model.Product, error) {
 
 
 func(s *productService) GetProducts(req *model.ProductApiGetProductsReq) (*model.PagingRes, error) {
-	categoryId := req.CategoryId
-	db := dao.Product.Ctx(context.TODO()).Where("category_id=?", categoryId).Order(
+	// categoryId := req.CategoryId
+	// db := dao.Product.Ctx(context.TODO()).Where("category_id=?", categoryId).Order(
+	// 	req.OrderColumn + " " + req.OrderType)
+	db := dao.Product.Ctx(context.TODO()).Order(
 		req.OrderColumn + " " + req.OrderType)
 	total, err := db.Count()
 	p := paging.Create(req.PageNum, req.PageSize, total)
@@ -37,7 +41,8 @@ func(s *productService) GetProducts(req *model.ProductApiGetProductsReq) (*model
 		return nil, err
 	}
 	product, err := db.All()
-	if err !=nil {
+	if err !=nil || product == nil {
+		g.Log().Error(err)
 		return nil, err
 	}
 	if product == nil {
@@ -45,6 +50,7 @@ func(s *productService) GetProducts(req *model.ProductApiGetProductsReq) (*model
 	}
 	var productlist []*model.SimpleProduct
 	if err = product.Structs(&productlist); err != nil {
+		g.Log().Error(err)
 		return nil, err
 	} 
 	

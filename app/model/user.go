@@ -27,3 +27,7 @@ type UserProfile struct {
 	RealName string
 	Balance  uint64
 }
+
+type AddBalance struct {
+	Money uint `v:"required#充值金额不能为空"`
+}
