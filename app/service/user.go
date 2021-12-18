@@ -23,9 +23,11 @@ func (s *userService) GetUser(req *model.AuthServiceLoginReq) (g.Map, error) {
 	var user *model.User
 	err := dao.User.Ctx(context.TODO()).Where("phone=? and password=?", req.Phone, req.Password).Scan(&user)
 	if err != nil {
+		g.Log().Error(err)
 		return nil, err
 	}
 	if user == nil {
+		g.Log().Error(err)
 		return nil, errors.New("手机号或密码错误")
 	}
 	return g.Map{
@@ -52,8 +54,10 @@ func (s *userService) SignUp(req *model.UserServiceSignUpReq) error {
 	user.Balance = 0
 	user.RealName = ""
 	if _, err := dao.User.Ctx(context.TODO()).Save(user); err != nil {
+		g.Log().Error(err)
 		return err
 	}
+	g.Log().Info(user.Username, "用户注册成功")
 	return nil
 }
 
@@ -78,12 +82,14 @@ func (s *userService) GetProfile(id string) (*model.UserProfile, error) {
 	var profile *model.UserProfile
 	err := dao.User.Ctx(context.TODO()).WherePri(id).Scan(&user)
 	if err != nil {
+		g.Log().Error(err)
 		return nil, err
 	}
 	if user == nil {
 		return nil, errors.New("用户不存在")
 	}
 	if err := gconv.Struct(user, &profile); err != nil {
+		g.Log().Error(err)
 		return nil, err
 	}
 	return profile, nil
@@ -95,17 +101,21 @@ func (s *userService) AddBalance(id string, money uint) error {
 		var user *model.User
 		err := dao.User.Ctx(ctx).WherePri(id).Scan(&user)
 		if err != nil {
+			g.Log().Error(err)
 			return err
 		}
 		user.Balance += uint64(money)
 		
 		_, err = dao.User.Ctx(ctx).WherePri(id).Update(user)
 		if err != nil {
+			g.Log().Error(err)
 			return err
 		}
+		g.Log().Info(user.Username, "用户充值", money)
 		return nil
 	})
 	if err != nil {
+		g.Log().Error(err)
 		return err
 	}
 	return nil
@@ -168,6 +178,7 @@ func (s *userService) BuyProduct(id string, req *model.BuyProduct) error {
 			g.Log().Error(err)
 			return errors.New("下订单失败")
 		}
+		g.Log().Info(user.Username, "用户下订单成功，金额为", order.TotalPrice)
 		return nil
 	})
 	if err != nil {
