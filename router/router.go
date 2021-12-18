@@ -26,6 +26,6 @@ func init() {
 		g.PUT("/balance", api.User.AddBalance)
 		g.GET("/order", api.Order.GetOrder)
 		g.GET("/orders", api.Order.GetOrderList)
-		g.POST("/buy", api.User.BuyProduct)
+		g.POST("/order", api.User.BuyProduct)
 	})
 }
