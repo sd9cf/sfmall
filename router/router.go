@@ -11,7 +11,7 @@ import (
 func init() {
 	s := g.Server()
 	s.Group("/", func(g *ghttp.RouterGroup) {
-		g.Middleware(middleware.CORS)
+		g.Middleware(middleware.CORS, middleware.Logger)
 		g.POST("/login", middleware.Auth.LoginHandler)
 		g.GET("/refresh_token", middleware.Auth.RefreshHandler)
 		g.GET("/logout", middleware.Auth.LogoutHandler)
@@ -21,7 +21,7 @@ func init() {
 		g.GET("/products", api.Product.GetProductList)
 	})
 	s.Group("/user", func(g *ghttp.RouterGroup) {
-		g.Middleware(middleware.CORS, middleware.MiddlewareAuth)
+		g.Middleware(middleware.CORS, middleware.Logger, middleware.MiddlewareAuth)
 		g.GET("/profile", api.User.Profile)
 		g.PUT("/balance", api.User.AddBalance)
 		g.GET("/order", api.Order.GetOrder)

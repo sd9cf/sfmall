@@ -1,7 +1,7 @@
 package model
 
 type ProductApiGetProductReq struct {
-	ProductId string `json:"productId"`
+	ProductId string `v:"required#商品ID不为空"`
 }
 
 type ProductApiGetProductsReq struct {
