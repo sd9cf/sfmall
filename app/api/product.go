@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/gogf/gf/net/ghttp"
+	"github.com/gogf/gf/util/gconv"
 	"sfmall/library/response"
 	"sfmall/app/model"
 	"sfmall/app/service"
@@ -12,11 +13,8 @@ var Product = new(productApi)
 type productApi struct{}
 
 func (a *productApi) GetProduct(r *ghttp.Request) {
-	var apiReq *model.ProductApiGetProductReq
-	if err := r.ParseForm(&apiReq); err != nil {
-		response.JsonExit(r, 1, err.Error())
-	}
-	product, err := service.Product.GetProduct(apiReq.ProductId)
+	productId := r.Get("productId")
+	product, err := service.Product.GetProduct(gconv.String(productId))
 	if err != nil {
 		response.JsonExit(r, 1, err.Error())
 	}

@@ -34,7 +34,7 @@ func init() {
 	// 初始化配置
 	JwtCfg = new(JwtConfig)
 	if err := g.Cfg().GetStruct("jwt", JwtCfg); err != nil {
-		g.Log().Errorf("load jwt config fail, err: %v", err)
+		g.Log().Errorf("JWT加载配置错误: %v", err)
 	}
 	authMiddleware, err := jwt.New(&jwt.GfJWTMiddleware{
 		Realm:           JwtCfg.Realm,

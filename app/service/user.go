@@ -7,7 +7,7 @@ import (
 	"strings"
 	"sfmall/app/dao"
 	"sfmall/app/model"
-
+	"sfmall/app/myerror"
 	"github.com/gogf/gf/database/gdb"
 	"github.com/gogf/gf/frame/g"
 	"github.com/gogf/gf/util/gconv"
@@ -23,12 +23,11 @@ func (s *userService) GetUser(req *model.AuthServiceLoginReq) (g.Map, error) {
 	var user *model.User
 	err := dao.User.Ctx(context.TODO()).Where("phone=? and password=?", req.Phone, req.Password).Scan(&user)
 	if err != nil {
-		g.Log().Error(err)
-		return nil, err
+		g.Log().Error("数据库请求用户错误phone:%s,错误%v", req.Phone, err)
+		return nil, myerror.DATABASEERROR
 	}
 	if user == nil {
-		g.Log().Error(err)
-		return nil, errors.New("手机号或密码错误")
+		return nil, myerror.AUTHFAILERROR
 	}
 	return g.Map{
 		"id":       user.Id,
@@ -82,40 +81,41 @@ func (s *userService) GetProfile(id string) (*model.UserProfile, error) {
 	var profile *model.UserProfile
 	err := dao.User.Ctx(context.TODO()).WherePri(id).Scan(&user)
 	if err != nil {
-		g.Log().Error(err)
-		return nil, err
+		g.Log().Error("数据库请求用户错误ID:%s,错误%v", id, err)
+		return nil, myerror.DATABASEERROR
 	}
 	if user == nil {
 		return nil, errors.New("用户不存在")
 	}
 	if err := gconv.Struct(user, &profile); err != nil {
-		g.Log().Error(err)
-		return nil, err
+		g.Log().Errorf("数据%s映射错误", user.Id)
+		return nil, myerror.MAPPINGERROR
 	}
 	return profile, nil
 }
 
 
 func (s *userService) AddBalance(id string, money uint) error {
+	g.Log().Infof("用户%s充值%d", id, money)
 	err := dao.User.Ctx(context.TODO()).Transaction(context.TODO(), func(ctx context.Context, tx *gdb.TX) error {
 		var user *model.User
 		err := dao.User.Ctx(ctx).WherePri(id).Scan(&user)
 		if err != nil {
-			g.Log().Error(err)
-			return err
+			g.Log().Error("数据库请求用户错误ID:%s,错误%v", id, err)
+			return myerror.DATABASEERROR
 		}
 		user.Balance += uint64(money)
 		
 		_, err = dao.User.Ctx(ctx).WherePri(id).Update(user)
 		if err != nil {
-			g.Log().Error(err)
-			return err
+			g.Log().Error("数据库请求用户错误ID:%s,错误%v", id, err)
+			return myerror.DATABASEERROR
 		}
-		g.Log().Info(user.Username, "用户充值", money)
+		g.Log().Infof("用户%s充值%d成功", id, money)
 		return nil
 	})
 	if err != nil {
-		g.Log().Error(err)
+		g.Log().Infof("用户%s充值%d失败", id, money)
 		return err
 	}
 	return nil

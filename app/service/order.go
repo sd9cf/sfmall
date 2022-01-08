@@ -6,6 +6,7 @@ import (
 	"github.com/gogf/gf/frame/g"
 	"sfmall/app/dao"
 	"sfmall/app/model"
+	"sfmall/app/myerror"
 	"sfmall/library/paging"
 )
 
@@ -20,21 +21,21 @@ func(s *orderService) GetOrders(req *model.OrderApiGetOrdersReq, userId string) 
 	p := paging.Create(req.PageNum, req.PageSize, total)
 	db.Limit(p.PageSize, p.StartNum)
 	if err !=nil {
-		g.Log().Error(err)
-		return nil, err
+		g.Log().Error("数据库错误请求:%v,错误%v", req, err)
+		return nil, myerror.DATABASEERROR
 	}
 	order, err := db.All()
 	if err != nil {
-		g.Log().Error(err)
-		return nil, err
+		g.Log().Error("数据库错误请求:%v,错误%v", req, err)
+		return nil, myerror.DATABASEERROR
 	}
 	if order == nil {
 		return nil, errors.New("未找到订单")
 	}
 	var orderlist []*model.Order
 	if err = order.Structs(&orderlist); err != nil {
-		g.Log().Error(err)
-		return nil, err
+		g.Log().Errorf("数据%v映射错误", order)
+		return nil, myerror.MAPPINGERROR
 	} 
 
 	return &model.PagingRes{
@@ -47,8 +48,8 @@ func (s *orderService) GetOrder(id string, userId string) (*model.Order, error) 
 	var order *model.Order
 	err := dao.Order.Ctx(context.TODO()).Where(id).Scan(&order)
 	if err != nil {
-		g.Log().Error(err)
-		return nil, err
+		g.Log().Error("获取订单错误id:%s,错误%v", id, err)
+		return nil, myerror.DATABASEERROR
 	}
 	if order == nil {
 		return nil, errors.New("未找到订单")

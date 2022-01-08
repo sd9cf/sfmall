@@ -6,6 +6,7 @@ import (
 	"github.com/gogf/gf/frame/g"
 	"sfmall/app/dao"
 	"sfmall/app/model"
+	"sfmall/app/myerror"
 	"sfmall/library/paging"
 )
 
@@ -16,10 +17,10 @@ type productService struct{}
 
 func(s *productService) GetProduct(id string) (*model.Product, error) {
 	var product *model.Product
-	err := dao.Product.Ctx(context.TODO()).Where(id).Scan(&product)
+	err := dao.Product.Ctx(context.TODO()).WherePri(id).Scan(&product)
 	if err != nil {
-		g.Log().Error(err)
-		return nil, err
+		g.Log().Error("数据库请求商品错误id:%s,错误%v", id, err)
+		return nil, myerror.DATABASEERROR
 	}
 	if product == nil {
 		return nil, errors.New("未找到商品")
@@ -38,20 +39,21 @@ func(s *productService) GetProducts(req *model.ProductApiGetProductsReq) (*model
 	p := paging.Create(req.PageNum, req.PageSize, total)
 	db.Limit(p.PageSize, p.StartNum)
 	if err !=nil {
-		return nil, err
+		g.Log().Error("数据库请求商品错误请求:%v,错误%v", req, err)
+		return nil, myerror.DATABASEERROR
 	}
 	product, err := db.All()
 	if err !=nil || product == nil {
-		g.Log().Error(err)
-		return nil, err
+		g.Log().Error("数据库请求商品错误请求:%v,错误%v", req, err)
+		return nil, myerror.DATABASEERROR
 	}
 	if product == nil {
 		return nil, errors.New("未找到商品")
 	}
 	var productlist []*model.SimpleProduct
 	if err = product.Structs(&productlist); err != nil {
-		g.Log().Error(err)
-		return nil, err
+		g.Log().Errorf("数据%v映射错误", product)
+		return nil, myerror.MAPPINGERROR
 	} 
 	
 	return &model.PagingRes{
