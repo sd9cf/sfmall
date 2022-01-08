@@ -13,12 +13,9 @@ var Order = new(orderApi)
 type orderApi struct{}
 
 func (a *orderApi) GetOrder(r *ghttp.Request) {
-	var apiReq *model.OrderApiGetOrderReq
-	if err := r.ParseForm(&apiReq); err != nil {
-		response.JsonExit(r, 1, err.Error())
-	}
+	orderId := r.Get("orderId")
 	userId := r.Get("id")
-	order, err := service.Order.GetOrder(apiReq.OrderId, gconv.String(userId))
+	order, err := service.Order.GetOrder(gconv.String(orderId), gconv.String(userId))
 	if err != nil {
 		response.JsonExit(r, 1, err.Error())
 	}

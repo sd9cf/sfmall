@@ -25,10 +25,10 @@ func init() {
 		g.GET("/profile", api.User.Profile)
 		g.PUT("/balance", api.User.AddBalance)
 	})
-	s.Group("/order", func(g *ghttp.RouterGroup) {
+	s.Group("/orders/", func(g *ghttp.RouterGroup) {
 		g.Middleware(middleware.CORS, middleware.Logger, middleware.MiddlewareAuth)
-		g.GET("/", api.Order.GetOrder)
-		g.GET("/list", api.Order.GetOrderList)
+		g.GET("/{orderId}", api.Order.GetOrder)
+		g.GET("/", api.Order.GetOrderList)
 		g.POST("/", api.User.BuyProduct)
 	})
 }
